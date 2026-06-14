@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>学术声明 · 良渚刻绘符号检索平台</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.doc{max-width:820px;margin:0 auto;background:var(--paper-2);border:1px solid var(--line);
+  border-radius:14px;box-shadow:var(--shadow);padding:46px 52px}
+@media(max-width:680px){.doc{padding:28px 22px}}
+.doc h2{color:var(--jade);letter-spacing:2px;font-size:19px;margin:30px 0 10px;
+  padding-left:12px;border-left:5px solid var(--gold)}
+.doc h2:first-child{margin-top:0}
+.doc p{font-size:15.5px;line-height:1.95;color:var(--ink-soft);text-align:justify;margin:0 0 12px}
+.doc ol{padding-left:22px}.doc li{margin-bottom:8px;color:var(--ink-soft);line-height:1.85}
+.doc .cite{background:#f1ead9;border:1px dashed var(--gold);border-radius:8px;padding:14px 18px;
+  font-size:14px;color:var(--ink);font-family:Consolas,Menlo,monospace;line-height:1.7}
+.schema{width:100%;border-collapse:collapse;font-size:14px;margin:6px 0 4px}
+.schema th,.schema td{border:1px solid var(--line);padding:8px 11px;text-align:left}
+.schema th{background:var(--jade-pale);color:var(--jade)}
+.dot-note{color:var(--ink);font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="section-title">学术声明</h1>
+  <p class="sub"> Academic Statement </p>
+
+  <div class="doc">
+    <h2>一、数据库宗旨</h2>
+    <p>本数据库面向考古学、古文字学及相关研究者与爱好者，系统整理良渚文化（约公元前 3300—前 2300 年）
+    陶器、玉石器上的刻绘、戳印符号资料，逐件著录器物与符号信息，并尽可能配以原始照片、摹本与拓本图像，
+    以期为史前刻画记号与中国文字起源研究提供便捷的检索与比对平台。</p>
+
+    <h2>二、数据来源与构成</h2>
+    <p>本库数据依托结构化关系型数据库构建，核心实体及其关系如下：器物与符号为一对多关系，
+    一件器物之上可承载多个刻绘符号；每个符号又可关联其符号图片、摹本与拓本图像。</p>
+    <table class="schema">
+      <tr><th>数据表</th><th>主要字段</th><th>说明</th></tr>
+      <tr><td>器物表</td><td>器物编号、器型、考古学编号、尺寸、现藏单位、器物材质、备注</td><td>器物基础著录</td></tr>
+      <tr><td>符号表</td><td>符号编号、器物编号、符号位置、烧刻时间、符号形象、是否残缺、备注</td><td>逐个符号著录</td></tr>
+      <tr><td>器物图片表</td><td>图片编号、器物编号、图片索引、图片名</td><td>器物照片</td></tr>
+      <tr><td>拓本表</td><td>拓本编号、符号编号、拓本比例、拓本图片</td><td>符号拓本</td></tr>
+      <tr><td>摹本表</td><td>摹本编号、符号编号、摹本图片</td><td>符号摹本</td></tr>
+    </table>
+    <p>其中「出土地」依据各器物之考古学编号前缀归并而得；「材质类别」由器物材质著录文字归纳而成，
+    二者均为便于检索而派生的字段，原始著录文字一并完整保留于详情页中。</p>
+
+    <h2>三、著录体例与说明</h2>
+    <ol>
+      <li><span class="dot-note">编号规则：</span>器物编号以「L」起首加四位序号（如 L0001）；符号、摹本、拓本编号在器物号后续加三位序号，
+      同一器物内各类图像按采集次序连续编号。</li>
+      <li><span class="dot-note">烧刻时间：</span>分「烧前刻」（成坯未烧时刻划）与「烧后刻」（成器后刻划）两类，存疑或漫漶不清者归入「不明」。</li>
+      <li><span class="dot-note">符号位置：</span>记录符号在器物上的部位（底部、口沿、足部、腹部等），原始描述完整保留。</li>
+      <li><span class="dot-note">图像关联：</span>因摹本、拓本与符号采用独立的图像序号，本库依「同一器物内、序号紧邻」的原则
+      将摹本、拓本归属至相应符号，个别归属可能存在偏差，使用时请以原始著录与图像为准。</li>
+      <li><span class="dot-note">缺图说明：</span>部分器物或符号暂无对应图像，详情页以「暂无图片」标示。</li>
+    </ol>
+
+    <h2>四、使用规范</h2>
+    <p>本数据库所收录之图片、拓本、摹本及著录信息，其著作权与相关权利归原发掘单位、收藏机构及著录者所有。
+    本库仅作学术研究与教学交流之非商业用途使用。使用者引用本库资料时，应注明原始出处及收藏单位，
+    并遵守相关法律法规与学术规范，不得用于任何商业目的或侵犯他人权益之行为。</p>
+
+    <h2>五、引用方式</h2>
+    <p>建议引用格式如下（示例）：</p>
+    <div class="cite">良渚刻绘符号数据库. 器物/符号编号 [编号]. 访问日期: ____年__月__日.</div>
+
+    <h2>六、免责与反馈</h2>
+    <p>本库数据在整理、归并与派生过程中难免存在疏漏或错误，所载信息不作为任何权威结论之依据。
+    如发现数据讹误或权属争议，欢迎反馈以便核订更正。对于因使用本库资料而产生的任何后果，本库不承担相应责任。</p>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="assets/common.js"></script>
+</body>
+</html>

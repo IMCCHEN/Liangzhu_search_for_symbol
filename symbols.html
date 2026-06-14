@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>符号检索 · 良渚刻绘符号检索平台</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="wrap">
+  <h1 class="section-title">符号检索</h1>
+  <p class="sub">共 <span id="total">0</span> 例刻绘符号。可在左侧按条件筛选，或检索编号、所属器物、位置、备注等。点击结果查看符号图、摹本与拓本。</p>
+
+  <div class="searchbar">
+    <input id="q" type="text" placeholder="搜索 符号编号 / 器物编号 / 位置 / 烧刻 / 备注 …">
+    <button class="btn" id="go">搜索</button>
+    <button class="btn ghost" id="reset">重置</button>
+  </div>
+
+  <div class="search-layout">
+    <aside class="filters" id="filters"></aside>
+    <div>
+      <div class="resbar">
+        <div class="cnt">检索结果 <b id="cnt">0</b> 例</div>
+        <label style="font-size:13px;color:var(--ink-soft)">
+          <input type="checkbox" id="onlyimg"> 仅显示有图像</label>
+      </div>
+      <div class="grid" id="grid"></div>
+      <div id="more" style="text-align:center;margin-top:22px"></div>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="assets/common.js"></script>
+<script>
+(function(){
+  var D=window.LZ_DATA, items=D.symbols;
+  document.getElementById('total').textContent=items.length;
+  var FACETS=[
+    {key:'pos_cat',label:'符号位置'},
+    {key:'burn_cat',label:'烧刻时间'},
+    {key:'defect_cat',label:'是否残缺'},
+    {key:'img_cat',label:'符号形象'},
+    {key:'qtype',label:'关联器型'},
+    {key:'site',label:'出土地'}
+  ];
+  var sel={}; FACETS.forEach(function(f){sel[f.key]={};});
+  var fc=document.getElementById('filters');
+  fc.innerHTML='<h3>筛选条件</h3>'+FACETS.map(function(f){
+    var vals=LZ.facet(items,f.key);
+
+    var lastWords = ['未注明','不明','未注明','未知'];
+  vals.sort(function(a,b){
+    var aLast = lastWords.includes(a.v);
+    var bLast = lastWords.includes(b.v);
+    if (aLast && !bLast) return 1;
+    if (!aLast && bLast) return -1;
+    return b.n - a.n;
+  });
+
+    return '<div class="fgroup"><div class="lbl">'+f.label+'</div><div class="chips" data-k="'+f.key+'">'+
+      vals.map(function(x){return '<span class="chip" data-v="'+encodeURIComponent(x.v)+'">'+x.v+' <small style="opacity:.6">'+x.n+'</small></span>';}).join('')+
+      '</div></div>';
+  }).join('');
+
+  var p=new URLSearchParams(location.search);
+  if(p.get('site')) sel.site[p.get('site')]=1;
+  if(p.get('obj')) document.getElementById('q').value=p.get('obj');
+
+  fc.querySelectorAll('.chips').forEach(function(box){
+    var k=box.dataset.k;
+    box.querySelectorAll('.chip').forEach(function(ch){
+      var v=decodeURIComponent(ch.dataset.v);
+      if(sel[k][v]) ch.classList.add('on');
+      ch.addEventListener('click',function(){
+        if(sel[k][v]){delete sel[k][v];ch.classList.remove('on');}
+        else{sel[k][v]=1;ch.classList.add('on');}
+        render();
+      });
+    });
+  });
+
+  var grid=document.getElementById('grid'), cnt=document.getElementById('cnt'), more=document.getElementById('more');
+  var PAGE=60, shown=PAGE, cur=[];
+  function match(s){
+    var txt=document.getElementById('q').value.trim().toLowerCase();
+    if(document.getElementById('onlyimg').checked && !(s.sym_img||s.tracings.length||s.rubbings.length)) return false;
+    for(var i=0;i<FACETS.length;i++){
+      var k=FACETS[i].key, chosen=Object.keys(sel[k]);
+      if(chosen.length && chosen.indexOf(s[k])<0) return false;
+    }
+    if(txt){
+      var hay=[s.id,s.qid,s.pos,s.burn,s.imgform,s.note,s.site,s.qtype].join(' ').toLowerCase();
+      if(hay.indexOf(txt)<0) return false;
+    }
+    return true;
+  }
+  function paint(){
+    var slice=cur.slice(0,shown);
+    grid.innerHTML=slice.length?slice.map(LZ.symbolCard).join(''):'<div class="empty">未找到符合条件的符号，请调整筛选条件。</div>';
+    LZ.bindCards(grid);
+    more.innerHTML=(cur.length>shown)?'<button class="btn ghost" id="mb">加载更多（剩余 '+(cur.length-shown)+' 例）</button>':'';
+    var mb=document.getElementById('mb'); if(mb) mb.addEventListener('click',function(){shown+=PAGE;paint();});
+  }
+  function render(){
+    cur=items.filter(match);
+    cnt.textContent=cur.length; shown=PAGE; paint();
+  }
+  document.getElementById('go').addEventListener('click',render);
+  document.getElementById('q').addEventListener('keydown',function(e){if(e.key==='Enter')render();});
+  document.getElementById('q').addEventListener('input',render);
+  document.getElementById('onlyimg').addEventListener('change',render);
+  document.getElementById('reset').addEventListener('click',function(){
+    sel={};FACETS.forEach(function(f){sel[f.key]={};});
+    fc.querySelectorAll('.chip').forEach(function(c){c.classList.remove('on');});
+    document.getElementById('q').value='';document.getElementById('onlyimg').checked=false;render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

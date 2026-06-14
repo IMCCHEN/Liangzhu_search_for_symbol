@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>良渚刻绘符号检索平台 · 首页</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.hero{position:relative;background:linear-gradient(135deg,#2b2723 0%,#3a6b5e 120%);
+  color:var(--paper);overflow:hidden}
+.hero::after{content:"良渚";position:absolute;right:-10px;bottom:-60px;font-size:280px;
+  font-weight:700;color:rgba(176,141,87,.10);letter-spacing:10px;pointer-events:none}
+.hero-inner{max-width:1200px;margin:0 auto;padding:74px 22px 64px;position:relative;z-index:2}
+.hero h1{font-size:42px;letter-spacing:6px;margin:0 0 6px}
+.hero .en{color:var(--jade-light);letter-spacing:4px;font-size:14px;margin-bottom:24px}
+.hero p.lead{max-width:680px;font-size:17px;line-height:1.9;color:#e7e0d2}
+.stats{display:flex;gap:38px;margin-top:30px;flex-wrap:wrap}
+.stat b{font-size:34px;color:var(--gold);display:block;line-height:1}
+.stat span{font-size:13px;color:#cfc7b8;letter-spacing:1px}
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:14px}
+@media(max-width:880px){.quick{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:30px}}
+.qcard{display:block;background:var(--paper-2);border:1px solid var(--line);border-radius:12px;
+  padding:24px 20px;box-shadow:var(--shadow);transition:.2s;color:var(--ink)}
+.qcard:hover{transform:translateY(-5px);border-color:var(--jade-light);color:var(--ink)}
+.qcard .ic{width:46px;height:46px;border-radius:10px;background:var(--jade-pale);color:var(--jade);
+  display:grid;place-items:center;font-size:24px;margin-bottom:12px}
+.qcard h3{margin:0 0 6px;font-size:18px;color:var(--jade);letter-spacing:1px}
+.qcard p{margin:0;font-size:13px;color:var(--ink-soft);line-height:1.6}
+.two{display:grid;grid-template-columns:1.3fr 1fr;gap:30px;margin-top:14px}
+@media(max-width:880px){.two{grid-template-columns:1fr}}
+.intro p{font-size:17.5px;line-height:1.95;color:var(--ink-soft);margin:0 0 14px;text-align:justify}
+.intro p b{color:var(--ink)}
+.panel{background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:20px 22px;box-shadow:var(--shadow)}
+.panel h4{margin:0 0 12px;color:var(--gold);letter-spacing:1px;font-size:15px}
+.bars .bar{margin-bottom:9px}
+.bars .bn{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft);margin-bottom:3px}
+.bars .track{height:8px;background:#ece5d6;border-radius:5px;overflow:hidden}
+.bars .fill{height:100%;background:linear-gradient(90deg,var(--jade-light),var(--jade));border-radius:5px}
+.fimg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.fimg .card{cursor:pointer}
+.fimg .thumb{height:120px}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <h1>良渚刻绘符号检索平台</h1>
+    <div class="en">LIANGZHU INSCIRBED SYMBOLS SEARCH PLATFORM</div>
+    <p class="lead">良渚文化（约公元前 3300—前 2300 年）是环太湖流域新石器时代晚期的重要考古学文化。
+    其陶器、玉石器之上刻绘、戳印的各类符号，是探讨史前刻画记号、原始文字起源与早期文明的关键材料。
+    本数据库整合器物、符号及其拓本、摹本图像，提供多维检索与地理可视化。</p>
+    <div class="stats" id="stats"></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="quick">
+    <a class="qcard" href="objects.html"><div class="ic">器</div><h3>器物检索</h3>
+      <p>按器型、出土地、现藏单位、材质多条件筛选或关键词搜索，查看器物照片与著录信息。</p></a>
+    <a class="qcard" href="symbols.html"><div class="ic">符</div><h3>符号检索</h3>
+      <p>按符号位置、烧刻时间、残缺、形象等条件检索刻绘符号，并查看符号图、摹本、拓本。</p></a>
+    <a class="qcard" href="map.html"><div class="ic">沙</div><h3>地理沙盘</h3>
+      <p>以环太湖—杭州湾区域沙盘标注各出土遗址，点击遗址联动检索其出土器物。</p></a>
+  </div>
+
+  <div class="two" style="margin-top:34px">
+    <div class="intro">
+      <h2 class="section-title">关于良渚刻绘符号</h2>
+      <p>良渚文化的刻绘符号主要见于<b>泥质黑皮陶</b>、夹砂红陶等陶器，以及部分玉石器之上，
+      多分布于器物的底部、口沿、肩腹与圈足等部位。依其制作工序，可分为<b>烧前刻</b>（成坯未烧时刻划）
+      与<b>烧后刻</b>（成器后刻划）两类，前者笔画圆润、后者多见崩茬。</p>
+      <p>符号形象既有由直线、弧线、网格组合而成的<b>抽象符号</b>，也有少量摹写鸟、兽等的<b>动物形象</b>。
+      部分符号成组出现、结构复杂，学界对其是否构成原始文字尚有争论，但普遍认为它们承载了良渚先民
+      的某种表意或标识功能，是研究中国文字起源不可或缺的实物证据。</p>
+      <p>本库以浙江、上海、江苏环太湖区域<b>庄桥坟、卞家山、塔地、庙前、新地里</b>等遗址为主，
+      逐件著录器物与符号，并尽可能配以原始图片、摹本和拓本，便于比对研究。</p>
+    </div>
+    <div class="panel">
+      <h4>出土遗址分布（按器物数）</h4>
+      <div class="bars" id="sitebars"></div>
+    </div>
+  </div>
+
+  <div style="margin-top:34px">
+    <h2 class="section-title">符号图像撷英</h2>
+    <p class="sub">随机选取若干刻绘符号，点击查看详情</p>
+    <div class="fimg" id="featured"></div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="assets/common.js"></script>
+<script>
+(function(){
+  var D=window.LZ_DATA;
+  var nObj=D.qiwu.length, nSym=D.symbols.length;
+  var nRub=0,nTra=0,nPic=0;
+  D.symbols.forEach(function(s){nRub+=s.rubbings.length;nTra+=s.tracings.length;});
+  D.qiwu.forEach(function(q){nPic+=(q.pics||[]).length;});
+  document.getElementById('stats').innerHTML=
+    [['器物',nObj],['刻绘符号',nSym],['摹本',nTra],['拓本',nRub]].map(function(x){
+      return '<div class="stat"><b>'+x[1]+'</b><span>'+x[0]+'</span></div>';}).join('');
+
+  var sf=LZ.facet(D.qiwu,'site').filter(function(x){return x.v!=='未知'&&x.v!=='馆藏/征集';}).slice(0,9);
+  var mx=sf[0].n;
+  document.getElementById('sitebars').innerHTML=sf.map(function(x){
+    return '<div class="bar"><div class="bn"><span><a href="map.html">'+x.v+'</a></span><span>'+x.n+'</span></div>'+
+      '<div class="track"><div class="fill" style="width:'+(x.n/mx*100)+'%"></div></div></div>';
+  }).join('');
+
+  var withImg=D.symbols.filter(function(s){return s.sym_img;});
+  var pick=[];var seen={};
+  while(pick.length<8 && pick.length<withImg.length){
+    var s=withImg[Math.floor(Math.random()*withImg.length)];
+    if(!seen[s.id]){seen[s.id]=1;pick.push(s);}
+  }
+  var fe=document.getElementById('featured');
+  fe.innerHTML=pick.map(function(s){
+    return '<div class="card" data-sym="'+s.id+'"><div class="thumb" style="background:#fff">'+
+      LZ.thumb(s.sym_img)+'</div><div class="meta"><span class="id">'+s.id+'</span></div></div>';
+  }).join('');
+  LZ.bindCards(fe);
+})();
+</script>
+</body>
+</html>

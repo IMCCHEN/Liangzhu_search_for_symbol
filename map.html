@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>地理沙盘 · 良渚刻绘符号检索平台</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.map-layout{display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start}
+@media(max-width:920px){.map-layout{grid-template-columns:1fr}}
+.sandbox{background:#efe6d2;border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow);overflow:hidden;position:relative}
+.sandbox svg{display:block;width:100%;height:auto}
+.site-dot{cursor:pointer;transition:.15s}
+.site-dot:hover circle.hit{stroke:var(--red);stroke-width:2}
+.site-dot circle.core{transition:.15s}
+.site-dot.sel circle.core{fill:var(--red)}
+.site-dot text{font-family:inherit;fill:var(--ink);font-size:12px;paint-order:stroke;
+  stroke:#f4ecd8;stroke-width:3px;stroke-linejoin:round}
+.legend{position:absolute;left:14px;bottom:14px;background:rgba(251,248,241,.92);
+  border:1px solid var(--line);border-radius:9px;padding:10px 13px;font-size:12px;color:var(--ink-soft)}
+.legend b{color:var(--jade)}
+.legend .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--jade);margin-right:5px;vertical-align:middle}
+.info{background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:var(--shadow);position:sticky;top:78px}
+.info h3{margin:0 0 4px;color:var(--jade);letter-spacing:1px;font-size:20px}
+.info .csub{font-size:12px;color:var(--ink-soft);margin-bottom:14px}
+.info .kv{display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.info .kv b{color:var(--jade)}
+.info .acts{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+.info .acts a{display:block;text-align:center;padding:10px;border-radius:8px;background:var(--jade);color:#fff;letter-spacing:1px;font-size:14px}
+.info .acts a.alt{background:#fff;color:var(--jade);border:1px solid var(--jade)}
+.info .acts a:hover{background:#2f5950;color:#fff}
+.info .acts a.alt:hover{background:var(--jade-pale)}
+.info .mini{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.info .mini .card{cursor:pointer}.info .mini .thumb{height:84px}
+.info .hint{color:#b3a98f;text-align:center;padding:30px 6px;font-size:14px}
+.rank{font-size:13px}.rank .r{display:flex;justify-content:space-between;padding:3px 0;cursor:pointer}
+.rank .r:hover{color:var(--red)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="section-title">地理沙盘</h1>
+  <p class="sub">环太湖—杭州湾流域良渚文化主要出土遗址示意沙盘（位置为大致示意）。点击遗址查看其出土器物与符号。</p>
+
+  <div class="map-layout">
+    <div class="sandbox">
+      <svg id="svg" viewBox="0 0 900 640" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="legend"><span class="dot"></span><b>遗址</b>　圆点大小表示器物数量　·　点击联动检索</div>
+    </div>
+    <div class="info" id="info">
+      <div class="hint">← 在沙盘上点击任一遗址<br>查看其出土器物与刻绘符号</div>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="assets/common.js"></script>
+<script>
+(function(){
+  var D=window.LZ_DATA;
+  // 各遗址大致经纬度（示意）
+  var COORD={
+    '庄桥坟':[30.70,121.00],'卞家山':[30.39,119.99],'塔地':[30.76,120.72],
+    '庙前':[30.40,120.05],'新地里':[30.63,120.52],'仙坛庙':[30.53,120.88],
+    '戴墓墩':[30.86,120.42],'金石墩':[30.80,120.15],'花城':[30.55,120.30],
+    '太史淀':[31.10,120.95],'少卿山':[31.35,120.95],'澄湖':[31.15,120.85],
+    '马桥':[31.00,121.42],'玉架山':[30.43,120.30],'朱皇庙':[30.70,120.60],
+    '小六旺':[30.88,120.70],'姚家山':[30.95,120.05],'董家桥':[30.72,120.45],
+    '东八角漾':[30.78,120.55],'达泽庙':[30.60,120.70],'高墩':[30.83,120.25],
+    '毘山':[30.92,120.10],'绰墩':[31.42,120.80],'赵陵山':[31.40,120.88],
+    '百亩山':[31.05,120.30],'广富林':[31.02,121.22]
+  };
+  // 统计每遗址器物数
+  var stat={}; D.qiwu.forEach(function(q){if(!stat[q.site])stat[q.site]={n:0,types:{},obj:[]};
+    stat[q.site].n++; stat[q.site].types[q.type]=(stat[q.site].types[q.type]||0)+1; stat[q.site].obj.push(q);});
+  var symStat={}; D.symbols.forEach(function(s){symStat[s.site]=(symStat[s.site]||0)+1;});
+
+  function proj(lat,lng){
+    var x=(lng-119.65)/(121.75-119.65)*900;
+    var y=(31.72-lat)/(31.72-30.20)*640;
+    return [x,y];
+  }
+  var svg=document.getElementById('svg');
+  var NS='http://www.w3.org/2000/svg';
+  function el(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+
+  // 背景：太湖、杭州湾、河流、海岸
+  svg.innerHTML=
+    '<defs>'+
+      '<radialGradient id="land" cx="45%" cy="40%" r="80%">'+
+        '<stop offset="0%" stop-color="#f1e8d3"/><stop offset="100%" stop-color="#e3d6b8"/></radialGradient>'+
+      '<linearGradient id="water" x1="0" y1="0" x2="0" y2="1">'+
+        '<stop offset="0%" stop-color="#bcd8d6"/><stop offset="100%" stop-color="#9cc3c2"/></linearGradient>'+
+    '</defs>'+
+    '<rect x="0" y="0" width="900" height="640" fill="url(#land)"/>'+
+    // 海（东侧 / 杭州湾）
+    '<path d="M900,0 L760,0 Q740,120 700,210 Q660,300 640,360 Q700,430 760,470 Q700,540 720,640 L900,640 Z" fill="url(#water)" stroke="#7fa8a6" stroke-width="1.5"/>'+
+    // 太湖
+    '<path d="M300,120 Q250,110 215,150 Q185,195 205,255 Q235,310 320,305 Q400,295 410,225 Q412,155 360,128 Q330,112 300,120 Z" fill="url(#water)" stroke="#7fa8a6" stroke-width="1.5"/>'+
+    '<text x="300" y="215" fill="#5b8482" font-size="18" text-anchor="middle" font-family="serif" letter-spacing="4">太　湖</text>'+
+    '<text x="800" y="330" fill="#5b8482" font-size="17" text-anchor="middle" font-family="serif" letter-spacing="3" transform="rotate(78 800 330)">杭　州　湾</text>'+
+    // 钱塘江
+    '<path d="M470,560 Q520,500 560,470 Q600,440 640,360" fill="none" stroke="#9cc3c2" stroke-width="9" stroke-linecap="round" opacity="0.85"/>'+
+    '<text x="505" y="540" fill="#5b8482" font-size="13" font-family="serif">钱塘江</text>'+
+    // 一些水网河流（手绘虚线）
+    '<g stroke="#a9c7c4" stroke-width="2.4" fill="none" opacity="0.7" stroke-dasharray="1 0">'+
+      '<path d="M410,225 Q470,250 520,300 Q560,335 640,360"/>'+
+      '<path d="M320,305 Q360,360 420,400 Q470,430 470,560"/>'+
+      '<path d="M520,300 Q540,360 560,470"/>'+
+      '<path d="M205,255 Q250,330 300,380"/>'+
+    '</g>'+
+    // 装饰罗盘
+    '<g transform="translate(70,560)" opacity="0.65"><circle r="22" fill="none" stroke="#b08d57" stroke-width="1.5"/>'+
+      '<path d="M0,-22 L5,0 L0,22 L-5,0 Z" fill="#b08d57"/><text x="0" y="-28" text-anchor="middle" fill="#b08d57" font-size="11">N</text></g>'+
+    '<text x="455" y="38" text-anchor="middle" fill="#9a8a68" font-size="15" letter-spacing="6" font-family="serif">环太湖 · 杭州湾　良渚文化遗址分布沙盘</text>';
+
+  // 标点
+  var maxN=Math.max.apply(null,Object.keys(stat).map(function(k){return COORD[k]?stat[k].n:0}));
+  Object.keys(COORD).forEach(function(name){
+    var c=COORD[name]; var st=stat[name]; var n=st?st.n:0;
+    var pt=proj(c[0],c[1]); var r=6+Math.sqrt(n)/Math.sqrt(maxN)*22;
+    var g=el('g',{'class':'site-dot','data-site':name,transform:'translate('+pt[0].toFixed(1)+','+pt[1].toFixed(1)+')'});
+    g.appendChild(el('circle',{'class':'hit',r:Math.max(r,10)+4,fill:'transparent',stroke:'transparent'}));
+    g.appendChild(el('circle',{'class':'core',r:r,fill:'rgba(58,107,94,.78)',stroke:'#fff','stroke-width':1.5}));
+    var label=el('text',{x:r+5,y:4});label.textContent=name+(n?'·'+n:'');
+    g.appendChild(label);
+    g.addEventListener('click',function(){selectSite(name);});
+    svg.appendChild(g);
+  });
+
+  var info=document.getElementById('info');
+  function selectSite(name){
+    svg.querySelectorAll('.site-dot').forEach(function(d){d.classList.toggle('sel',d.dataset.site===name);});
+    var st=stat[name]||{n:0,types:{},obj:[]};
+    var ns=symStat[name]||0;
+    var top=Object.keys(st.types).sort(function(a,b){return st.types[b]-st.types[a];}).slice(0,6);
+    var samp=st.obj.filter(function(q){return q.pics&&q.pics.length;}).slice(0,4);
+    info.innerHTML=
+      '<h3>'+name+'</h3><div class="csub">良渚文化出土地点（位置示意）</div>'+
+      '<div class="kv"><span>出土器物</span><b>'+st.n+' 件</b></div>'+
+      '<div class="kv"><span>刻绘符号</span><b>'+ns+' 例</b></div>'+
+      '<div style="margin-top:14px;font-size:13px;color:var(--gold);letter-spacing:1px">主要器型</div>'+
+      '<div class="rank">'+(top.length?top.map(function(t){return '<div class="r"><span>'+t+'</span><span>'+st.types[t]+'</span></div>';}).join(''):'<div style="color:#b3a98f;font-size:13px">—</div>')+'</div>'+
+      (samp.length?'<div class="mini">'+samp.map(function(q){return '<div class="card" data-obj="'+q.id+'"><div class="thumb">'+LZ.thumb(q.pics[0].file)+'</div></div>';}).join('')+'</div>':'')+
+      '<div class="acts">'+
+        '<a href="objects.html?site='+encodeURIComponent(name)+'">查看该遗址全部器物 ('+st.n+')</a>'+
+        '<a class="alt" href="symbols.html?site='+encodeURIComponent(name)+'">查看该遗址符号 ('+ns+')</a>'+
+      '</div>';
+    LZ.bindCards(info);
+  }
+  // 默认选中数量最多者
+  var top1=Object.keys(stat).filter(function(k){return COORD[k];}).sort(function(a,b){return stat[b].n-stat[a].n;})[0];
+  if(top1) selectSite(top1);
+})();
+</script>
+</body>
+</html>
