@@ -19,7 +19,7 @@
   DATA.symbols.forEach(function(s){(LZ.symsByObj[s.qid]=LZ.symsByObj[s.qid]||[]).push(s);});
   LZ.symById={}; DATA.symbols.forEach(function(s){LZ.symById[s.id]=s;});
 
-  var IMG=function(file){return file?('../img/'+file):'';};
+  var IMG=function(file){return file?('img/'+file):'';};
   window.IMG=IMG;
 
   function buildNav(){
